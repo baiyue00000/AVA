@@ -250,7 +250,6 @@ export const zhCN: TranslateList = {
       def:
         '统计学家和医学改革家佛罗伦萨‧南丁格尔在克里米亚战争期间创造了这种图表。尽管外形很像饼图，但本质上来说，南丁格尔玫瑰图更像在极坐标下绘制的柱状图或堆叠柱状图。只不过，它用半径来反映数值。',
     },
-
     scatter_plot: {
       name: '散点图',
       alias: [],
@@ -262,7 +261,11 @@ export const zhCN: TranslateList = {
       def:
         '气泡图是一种多变量的统计图表，由笛卡尔坐标系（直角坐标系）和大小不一、颜色不同的圆组成，可以看作是散点图的变形。',
     },
-
+    mechanical_bubble_chart:{
+      name: '力学气泡图',
+      alias: [],
+      def: '',
+    },
     non_ribbon_chord_diagram: {
       name: '',
       alias: [],

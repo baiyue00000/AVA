@@ -129,7 +129,7 @@ export function dataPropsToSpecs(dataProps: FieldInfo[], options?: AdvisorOption
         // if (showLog) console.log('H rule: ', hr.id, ' ; charttype: ', t);
         // if (showLog) console.log(score);
         record[hr.id] = score;
-      }
+      },
     );
 
     let softScore = 0;
@@ -141,7 +141,7 @@ export function dataPropsToSpecs(dataProps: FieldInfo[], options?: AdvisorOption
         // if (showLog) console.log('S rule: ', sr.id, ' ; charttype: ', t);
         // if (showLog) console.log(score);
         record[sr.id] = score;
-      }
+      },
     );
 
     score = hardScore * (1 + softScore);
@@ -186,6 +186,11 @@ export function dataPropsToSpecs(dataProps: FieldInfo[], options?: AdvisorOption
     if (t === 'area_chart') {
       const field4X = dataProps.find((field) => intersects(field.levelOfMeasurements, ['Time', 'Ordinal']));
       const field4Y = dataProps.find((field) => hasSubset(field.levelOfMeasurements, ['Interval']));
+      const field4Color = dataProps.find((field) => hasSubset(field.levelOfMeasurements, ['Nominal']));
+
+      if (field4Color) {
+        channels.color = field4Color.name;
+      }
 
       if (field4X && field4Y) {
         channels.x = field4X.name;
@@ -291,19 +296,34 @@ export function dataPropsToSpecs(dataProps: FieldInfo[], options?: AdvisorOption
     }
 
     // for Radar
-    if (t === 'radar_chart') {
+    if (t === 'radar_chart' || t === 'treemap' || t === 'mechanical_bubble_chart') {
       const nominalFields = dataProps.filter((field) => hasSubset(field.levelOfMeasurements, ['Nominal']));
 
       const sortedNominalFields = nominalFields.sort(compare);
 
-      const field4Angle = sortedNominalFields[0];
-      const field4Series = sortedNominalFields[1];
-      const field4Radius = dataProps.find((field) => hasSubset(field.levelOfMeasurements, ['Interval']));
+      const field4X = sortedNominalFields[0];
+      const field4X2 = sortedNominalFields[1];
+      const field4Value = dataProps.find((field) => hasSubset(field.levelOfMeasurements, ['Interval']));
 
-      if (field4Angle && field4Series && field4Radius) {
-        channels.angle = field4Angle.name;
+      if (field4X && field4Value) {
+        channels.x = field4X.name;
+        channels.size = field4Value.name;
+        if (field4X2) {
+          channels.x2 = field4X2.name;
+        }
+      } else {
+        score = 0;
+      }
+    }
+
+    // for funnel_chart and wordcloud
+    if (t === 'wordcloud' || t === 'funnel_chart') {
+      const field4Series = dataProps.find((field) => hasSubset(field.levelOfMeasurements, ['Nominal']));
+      const field4Size = dataProps.find((field) => hasSubset(field.levelOfMeasurements, ['Interval']));
+
+      if (field4Series && field4Size) {
         channels.series = field4Series.name;
-        channels.radius = field4Radius.name;
+        channels.size = field4Size.name;
       } else {
         score = 0;
       }
@@ -359,11 +379,13 @@ export function dataPropsToSpecs(dataProps: FieldInfo[], options?: AdvisorOption
 
       const field4Color = dataProps.find((field) => intersects(field.levelOfMeasurements, ['Nominal']));
 
-      if (field4X && field4Y && field4Size && field4Color) {
+      if (field4X && field4Y && field4Size) {
         channels.x = field4X.name;
         channels.y = field4Y.name;
         channels.size = field4Size.name;
-        channels.color = field4Color.name;
+        if (field4Color) {
+          channels.color = field4Color.name;
+        }
       } else {
         score = 0;
       }
@@ -438,7 +460,7 @@ export function analyze(data: any[], options?: AdvisorOptions, showLog = false):
   if (showLog) console.log('🔶🔶🔶🔶🔶🔶 dataset analysis 🔶🔶🔶🔶🔶🔶');
   if (showLog) console.log(dataProps);
 
-  const adviceList: Advice[] = dataPropsToSpecs(dataProps, options);
+  const adviceList: Advice[] = dataPropsToSpecs(dataProps, options, true);
 
   return adviceList;
 }

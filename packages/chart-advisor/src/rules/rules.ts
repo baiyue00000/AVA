@@ -135,7 +135,7 @@ const ChartRules: Rule[] = [
   new Rule(
     'series-qty-limit',
     'SOFT',
-    ['pie_chart', 'donut_chart', 'radar_chart', 'rose_chart'],
+    ['pie_chart', 'donut_chart', 'rose_chart'],
     0.8,
     (args): number => {
       let result = 0;
@@ -154,7 +154,7 @@ const ChartRules: Rule[] = [
         }
       }
       return result;
-    }
+    },
   ),
   // Bar chart should has proper number of bars or bar groups.
   new Rule(
@@ -185,7 +185,7 @@ const ChartRules: Rule[] = [
         }
       }
       return result;
-    }
+    },
   ),
   // Data has Time or Ordinal field are good for Line, Area charts.
   new Rule(
@@ -198,7 +198,7 @@ const ChartRules: Rule[] = [
       const { dataProps } = args;
       if (dataProps) {
         const field4TimeOrOrdinal = dataProps.find((field) =>
-          intersects(field.levelOfMeasurements, ['Ordinal', 'Time'])
+          intersects(field.levelOfMeasurements, ['Ordinal', 'Time']),
         );
 
         if (field4TimeOrOrdinal) {
@@ -206,7 +206,7 @@ const ChartRules: Rule[] = [
         }
       }
       return result;
-    }
+    },
   ),
   // Landscape or portrait as perferences.
   new Rule(
@@ -236,7 +236,7 @@ const ChartRules: Rule[] = [
         } else if (
           preferences.canvasLayout === 'landscape' &&
           ['column_chart', 'grouped_column_chart', 'stacked_column_chart', 'percent_stacked_column_chart'].includes(
-            chartType
+            chartType,
           )
         ) {
           result = 1;
@@ -244,7 +244,7 @@ const ChartRules: Rule[] = [
       }
 
       return result;
-    }
+    },
   ),
   // Difference should be big enough for pie sectors.
   new Rule('diff-pie-sector', 'SOFT', ['pie_chart', 'donut_chart'], 0.5, (args): number => {
@@ -313,7 +313,7 @@ const ChartRules: Rule[] = [
 
     if (dataProps && allChartTypes) {
       const nominalOrOrdinalFields = dataProps.filter((field) =>
-        intersects(field.levelOfMeasurements, ['Nominal', 'Ordinal'])
+        intersects(field.levelOfMeasurements, ['Nominal', 'Ordinal']),
       );
 
       if (nominalOrOrdinalFields.length >= 2) {
@@ -336,7 +336,110 @@ const ChartRules: Rule[] = [
 
     return result;
   }),
-  // end
+
+  new Rule('first-dimension-limit', 'SOFT', [
+    'funnel_chart',
+    'radar_chart',
+    'wordcloud',
+  ], 0.4, (args): number => {
+    let result = 0;
+    const { dataProps, chartType } = args;
+
+    let min = 3;
+    let max = 6;
+    if (chartType === 'radar_chart') {
+      min = 4;
+      max = 12;
+    } else if (chartType === 'wordcloud') {
+      min = 6;
+      max = 20;
+    }
+
+    if (dataProps) {
+      const nominalFields = dataProps.filter((field) => hasSubset(field.levelOfMeasurements, ['Nominal']));
+      if (nominalFields.length >= 1) {
+        const sortedNominals = nominalFields.sort(compare);
+        const f1 = sortedNominals[0];
+        if (f1.distinct && f1.distinct >= min && f1.distinct <= max) {
+          return 1;
+        }
+      }
+    }
+    return result;
+  }),
+
+  new Rule('second-dimension-limit', 'SOFT', [
+    'radar_chart',
+  ], 0.3, (args): number => {
+    let result = 0;
+    const { dataProps } = args;
+
+    let max = 2;
+
+    if (dataProps) {
+      const nominalFields = dataProps.filter((field) => hasSubset(field.levelOfMeasurements, ['Nominal']));
+      if (nominalFields.length > 1) {
+        const sortedNominals = nominalFields.sort(compare);
+        const f1 = sortedNominals[1];
+        if (f1.distinct && f1.distinct <= max) {
+          return 1;
+        }
+      } else {
+        return 1;
+      }
+    }
+    return result;
+  }),
+
+  new Rule('diff-sector', 'SOFT', [
+    'funnel_chart',
+    'wordcloud',
+    'treemap',
+  ], 0.3, (args): number => {
+    let result = 0;
+    const { dataProps } = args;
+
+    if (dataProps) {
+      const intervalField = dataProps.find((field) => hasSubset(field.levelOfMeasurements, ['Interval']));
+
+      if (intervalField && intervalField.sum && intervalField.samples) {
+        const sum = intervalField.sum;
+        const scale = 1 / sum;
+        const scaledSamples = intervalField.samples.map((v: number) => v * scale);
+
+        const scaledProduct = scaledSamples.reduce((a: number, c: number) => a * c);
+
+        const count = intervalField.samples.length;
+        const maxProduct = Math.pow(1 / count, count);
+
+        result = Math.abs(maxProduct - Math.abs(scaledProduct)) / maxProduct;
+      }
+    }
+
+    return result;
+  }),
+
+  new Rule('data-count', 'SOFT', [
+    'treemap',
+    'mechanical_bubble_chart',
+  ], 0.4, (args): number => {
+    let result = 0;
+    const { dataProps } = args;
+
+    let min = 6;
+    let max = 40;
+    if (dataProps) {
+      const intervalField = dataProps.find((field) => hasSubset(field.levelOfMeasurements, ['Interval']));
+      if (intervalField && intervalField.count) {
+        const count = intervalField.count;
+        if (count >= min && count <= max) {
+          return 1;
+        }
+      }
+    }
+
+    return result;
+  }),
 ];
 
 export default ChartRules;

@@ -32,6 +32,7 @@ export const CHART_ID_OPTIONS = [
   'rose_chart',
   'scatter_plot',
   'bubble_chart',
+  'mechanical_bubble_chart',
   'non_ribbon_chord_diagram',
   'arc_diagram',
   'chord_diagram',

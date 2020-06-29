@@ -541,6 +541,25 @@ export const base: ChartKnowledgeBase = {
     recRate: 'Recommended',
   },
 
+  mechanical_bubble_chart: {
+    id: 'mechanical_bubble_chart',
+    name: 'Mechanical Bubble Chart',
+    alias: ['Bubble Chart'],
+    family: ['ScatterCharts'],
+    def:
+      'Mechanical Bubble Chart',
+    purpose: ['Comparison', 'Distribution'],
+    coord: ['Cartesian2D'],
+    category: ['Statistic'],
+    shape: ['Scatter'],
+    dataPres: [
+      { minQty: 1, maxQty: 1, fieldConditions: ['Interval'] },
+      { minQty: 1, maxQty: 2, fieldConditions: ['Nominal'] },
+    ],
+    channel: ['Color', 'Position', 'Size'],
+    recRate: 'Recommended',
+  },
+
   non_ribbon_chord_diagram: {
     id: 'non_ribbon_chord_diagram',
     name: '',
@@ -588,16 +607,19 @@ export const base: ChartKnowledgeBase = {
 
   treemap: {
     id: 'treemap',
-    name: '',
-    alias: [],
-    family: [],
-    def: '',
-    purpose: [],
-    coord: [],
-    category: [],
-    shape: [],
-    dataPres: [],
-    channel: [],
+    name: 'Treemap',
+    alias: ['Web Chart', 'Spider Chart', 'Star Chart'],
+    family: ['TreeGraph'],
+    def: 'treemap',
+    purpose: ['Hierarchy', 'Relation'],
+    coord: ['Polar'],
+    category: ['Statistic'],
+    shape: ['Square'],
+    dataPres: [
+      { minQty: 1, maxQty: 2, fieldConditions: ['Nominal'] },
+      { minQty: 1, maxQty: 1, fieldConditions: ['Interval'] },
+    ],
+    channel: ['Position', 'Size'],
     recRate: 'Recommended',
   },
 
@@ -628,7 +650,7 @@ export const base: ChartKnowledgeBase = {
     category: ['Statistic'],
     shape: ['Symmetric'],
     dataPres: [
-      { minQty: 1, maxQty: 1, fieldConditions: ['Ordinal'] },
+      { minQty: 1, maxQty: 1, fieldConditions: ['Nominal'] },
       { minQty: 1, maxQty: 1, fieldConditions: ['Interval'] },
     ],
     channel: ['Color', 'Length'],
@@ -754,16 +776,19 @@ export const base: ChartKnowledgeBase = {
 
   wordcloud: {
     id: 'wordcloud',
-    name: '',
-    alias: [],
-    family: [],
-    def: '',
-    purpose: [],
-    coord: [],
-    category: [],
-    shape: [],
-    dataPres: [],
-    channel: [],
+    name: 'Wordcloud',
+    alias: ['Web Chart', 'Spider Chart', 'Star Chart'],
+    family: ['Others'],
+    def: 'wordcloud',
+    purpose: ['Comparison', 'Composition'],
+    coord: ['Polar'],
+    category: ['Statistic'],
+    shape: ['Round'],
+    dataPres: [
+      { minQty: 1, maxQty: 1, fieldConditions: ['Nominal'] },
+      { minQty: 1, maxQty: 1, fieldConditions: ['Interval'] },
+    ],
+    channel: ['Color', 'Size'],
     recRate: 'Recommended',
   },
 
